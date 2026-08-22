@@ -1,33 +1,78 @@
 local enemyPage = action_wheel:newPage("Enemies")
 
-models.custom_enemies.Creeper:setParentType("WORLD")
+--variables 
+local mainFile = models.custom_enemies:getChildren()
+local availableModels = {}
+local totalClonesTracker = {}
+local totalAllowed = 3
+local copyLibrary = {}
+local slotOption = 1
 
-
---test function place a cut out
-local totalClones = 0
+--function to set up the index table
+function actionSlotGenerator()
+for i = 1, #mainFile do
 local enemyCopies = {}
+table.insert(availableModels, models.custom_enemies:getChildren()[i])
+table.insert(copyLibrary, enemyCopies)
+table.insert(totalClonesTracker, 0)
+local action = enemyPage:newAction()
+	:title(models.custom_enemies:getChildren()[i]:getName())
+	:item("minecraft:iron_sword")
+	:hoverColor(1, 0, 1)
+	:setOnLeftClick(function()pings.placeCopies(action_wheel:getSelected())end)
+	:setOnRightClick(function()pings.removeCopies(action_wheel:getSelected())end)
+	:setOnScroll(pings.scrollSelect)
+models.custom_enemies:getChildren()[i]:setParentType("WORLD")
+end
+end
 
-
-function pings.placeCopies()
-if totalClones < 3 then
-local original = models.custom_enemies.Creeper
-local copy = original:copy("CLONE:".. totalClones)
+--Function to place copies
+function pings.placeCopies(index)
+if totalClonesTracker[index] < totalAllowed then
+local original = models.custom_enemies:getChildren()[index]
+local copy = original:copy("CLONE:".. totalClonesTracker[index])
 models.custom_enemies:addChild(copy)
 copy:setParentType("WORLD"):setPos(reposition()*16):setVisible(true)
-reposition()
-copy:getChildren()[1]:setParentType("CAMERA")
-table.insert(enemyCopies, copy)
-totalClones = totalClones + 1
+copy:getChildren()[1]:setParentType("CAMERA"):setLight(15)
+table.insert(copyLibrary[index], copy)
+totalClonesTracker[index] = totalClonesTracker[index] + 1
+--text above clone
+copyLibrary[index][totalClonesTracker[index]]:newPart(copyLibrary[index][totalClonesTracker[index]]:getName().. "." .. totalClonesTracker[index])
+copyLibrary[index][totalClonesTracker[index]]
+	:getChildren()[2]
+	:setParentType("CAMERA")
+	:newText("CloneText"..totalClonesTracker[index])
+	:setText(models.custom_enemies:getChildren()[index]:getName()..
+	" ".. totalClonesTracker[index])
+	:setScale(0.4)
+	:setOutline(true)
+	:setLight(15)
+	:setAlignment("CENTER")
+	:setPos(0,40,0)
 end
 end
 
 --function to remove the copies
-function pings.removeCopies()
-if totalClones > 0 then
-enemyCopies[totalClones]:remove()
-table.remove(enemyCopies, totalClones)
-totalClones = totalClones - 1
+function pings.removeCopies(index)
+if totalClonesTracker[index] > 0 then
+local testPiece = copyLibrary[index][slotOption]
+if testPiece ~= nil then
+testPiece:remove()
+table.remove(copyLibrary[index], slotOption)
+totalClonesTracker[index] = totalClonesTracker[index] - 1
 end
+end
+end
+
+--function to determine which object is being deleted
+function pings.scrollSelect(dir)
+if dir > 0 and slotOption < totalAllowed then
+slotOption = slotOption + 1
+end
+if dir < 0 and slotOption > 1 then
+slotOption = slotOption - 1
+end
+log(slotOption)
 end
 
 --function to create the position of a block closest to the center
@@ -49,14 +94,6 @@ end
 return vec(playerX+quickX,playerY,playerZ+quickZ)
 end
 
---quick placement button
-local action = enemyPage:newAction()
-	:title("Cut Out")
-	:item("minecraft:iron_sword")
-	:hoverColor(1, 0, 1)
-	:setOnLeftClick(pings.placeCopies)
-	:setOnRightClick(pings.removeCopies)
-
 --Automatically creates the action wheel stuff
 local lastPage = ""
 
@@ -69,6 +106,7 @@ function events.entity_init()
 	:hoverColor(1, 0, 1)
 	:setOnLeftClick(enemyPageChange)
 	
+	actionSlotGenerator()
 	local action = enemyPage:newAction()
 	:title("Return")
 	:item("minecraft:barrier")
@@ -76,6 +114,7 @@ function events.entity_init()
 	:setOnLeftClick(returnToMain)
 	else
 	action_wheel:setPage(enemyPage)
+	actionSlotGenerator()
 	end
 end	
 
