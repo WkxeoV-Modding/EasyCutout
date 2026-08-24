@@ -24,26 +24,31 @@ local action = enemyPage:newAction()
 	:setOnScroll(pings.scrollSelect)
 models.custom_enemies:getChildren()[i]:setParentType("WORLD")
 end
+for i = 1, totalAllowed do
+for x = 1, #copyLibrary do
+table.insert(copyLibrary[x], "EMPTY")
+end
+end
 end
 
 --Function to place copies
 function pings.placeCopies(index)
-if totalClonesTracker[index] < totalAllowed then
+if copyLibrary[index][slotOption] == "EMPTY" then
 local original = models.custom_enemies:getChildren()[index]
 local copy = original:copy("CLONE:".. totalClonesTracker[index])
 models.custom_enemies:addChild(copy)
 copy:setParentType("WORLD"):setPos(reposition()*16):setVisible(true)
 copy:getChildren()[1]:setParentType("CAMERA"):setLight(15)
-table.insert(copyLibrary[index], copy)
+copyLibrary[index][slotOption] = copy
 totalClonesTracker[index] = totalClonesTracker[index] + 1
 --text above clone
-copyLibrary[index][totalClonesTracker[index]]:newPart(copyLibrary[index][totalClonesTracker[index]]:getName().. "." .. totalClonesTracker[index])
-copyLibrary[index][totalClonesTracker[index]]
+copyLibrary[index][slotOption]:newPart(copyLibrary[index][slotOption]:getName().. "." .. slotOption)
+copyLibrary[index][slotOption]
 	:getChildren()[2]
 	:setParentType("CAMERA")
 	:newText("CloneText"..totalClonesTracker[index])
 	:setText(models.custom_enemies:getChildren()[index]:getName()..
-	" ".. totalClonesTracker[index])
+	" ".. slotOption)
 	:setScale(0.4)
 	:setOutline(true)
 	:setLight(15)
@@ -54,13 +59,10 @@ end
 
 --function to remove the copies
 function pings.removeCopies(index)
-if totalClonesTracker[index] > 0 then
+if copyLibrary[index][slotOption] ~= "EMPTY" then
 local testPiece = copyLibrary[index][slotOption]
-if testPiece ~= nil then
+copyLibrary[index][slotOption] = "EMPTY"
 testPiece:remove()
-table.remove(copyLibrary[index], slotOption)
-totalClonesTracker[index] = totalClonesTracker[index] - 1
-end
 end
 end
 
