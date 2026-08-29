@@ -12,7 +12,7 @@ It will also gain a name above it which will use the name of the group of the cu
 Right Click is to remove a cutout. Simple!
 
 I mentioned slot option this option goes from 1 to 3 (the limit currently)
-You do so by scrolling over the action which will then send a log of the number selected. (this sending log thing may change)
+You do so by scrolling over the action which will show you above your hotbar.
 That determines which slot of the copy library it is at
 
 Currently, it is limited to 3 but to those who want more simply increase it in the script.
