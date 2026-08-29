@@ -74,7 +74,7 @@ end
 if dir < 0 and slotOption > 1 then
 slotOption = slotOption - 1
 end
-log(slotOption)
+host:setActionbar(slotOption)
 end
 
 --function to create the position of a block closest to the center
